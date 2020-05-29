@@ -9,6 +9,9 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 
+// 
+using MessagingToolkit.QRCode.Codec;
+
 namespace GerandoPDF
 {
     class Program
@@ -44,8 +47,24 @@ namespace GerandoPDF
 
                 loremIpsum.Add(text);
 
+                QRCodeEncoder encoder = new QRCodeEncoder();
+
+                encoder.QRCodeBackgroundColor = System.Drawing.Color.White;
+                encoder.QRCodeForegroundColor = System.Drawing.Color.Black;
+                encoder.CharacterSet = "UTF-8";
+                encoder.QRCodeEncodeMode = QRCodeEncoder.ENCODE_MODE.BYTE;
+                encoder.QRCodeScale = 6;
+                encoder.QRCodeVersion = 0;
+                encoder.QRCodeErrorCorrect = QRCodeEncoder.ERROR_CORRECTION.Q;
+
+                System.Drawing.Bitmap QRCode = encoder.Encode("https://github.com/zJhol/gerando-pdf");
+
+                Paragraph image = new Paragraph(String.Empty, new Font(Font.NORMAL, 14));
+                image.Add(Image.GetInstance(QRCode, System.Drawing.Imaging.ImageFormat.Png));
+
                 doc.Add(paragraph);
-                doc.Add(loremIpsum);
+                doc.Add(image);
+                doc.Add(loremIpsum);                     
 
                 Console.WriteLine(" === PDF GERADO COM SUCESSO === ");
 
@@ -62,7 +81,7 @@ namespace GerandoPDF
                     sb.Append(PdfTextExtractor.GetTextFromPage(reader, i));
                 }
 
-                Console.WriteLine("\n\n === CONTEÚDO DO ARQUIVO === \n");
+                Console.WriteLine("\n\n === TEXTOS DO ARQUIVO === \n");
                 Console.WriteLine(sb.ToString());
             }
             Console.ReadLine();
